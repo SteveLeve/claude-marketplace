@@ -13,7 +13,8 @@ claude-marketplace/
 ├── .claude-plugin/
 │   └── marketplace.json     # Marketplace registry
 ├── plugins/                 # Individual plugins
-│   └── cloudflare-expert/   # Cloudflare Developer Platform plugin
+│   ├── cloudflare-expert/   # Cloudflare Developer Platform plugin
+│   └── hooks-lab/           # Hooks learning laboratory
 └── CLAUDE.md                # Guide for Claude Code instances
 ```
 
@@ -32,13 +33,41 @@ Comprehensive guidance for building on the Cloudflare Developer Platform.
 
 **Installation:**
 ```bash
-cc --plugin-dir /path/to/claude-marketplace
+# Load specific plugin
+claude --plugin-dir /path/to/claude-marketplace/plugins/cloudflare-expert
+
+# Or install from marketplace
+/plugin marketplace add /path/to/claude-marketplace
+/plugin install cloudflare-expert@steves-claude-marketplace
 ```
 
-Or reference specific plugin:
+### hooks-lab (v0.1.0)
+
+Interactive laboratory for learning Claude Code hooks through verbose, transparent demonstrations.
+
+**Features:**
+- 5 demonstration hooks (SessionStart, SessionEnd, PreToolUse, PostToolUse, UserPromptSubmit)
+- Verbose, color-coded logging with educational explanations
+- Context bundling and analysis utilities
+- Comprehensive learning documentation
+- Data collection for analytics and pattern study
+
+**Installation:**
 ```bash
-cc --plugin-dir /path/to/claude-marketplace/plugins/cloudflare-expert
+# Load specific plugin
+claude --plugin-dir /path/to/claude-marketplace/plugins/hooks-lab
+
+# Or install from marketplace
+/plugin marketplace add /path/to/claude-marketplace
+/plugin install hooks-lab@steves-claude-marketplace
 ```
+
+**What You'll Learn:**
+- Hook lifecycle and execution flow
+- Tool interception and validation patterns
+- Context engineering and injection techniques
+- Session state management
+- Building production-ready automation
 
 ## Usage
 
@@ -70,7 +99,8 @@ This marketplace emphasizes:
 ## Roadmap
 
 - [x] Cloudflare Developer Platform plugin
-- [ ] Hooks experimentation plugin
+- [x] Hooks experimentation plugin (hooks-lab)
+- [ ] Advanced hooks patterns (async, parallel, agent-based)
 - [ ] Shared utilities library
 - [ ] Plugin development toolkit
 

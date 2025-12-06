@@ -15,6 +15,16 @@
         "name": "Steve Leve",
         "email": "steve.e.leve@gmail.com"
       }
+    },
+    {
+      "name": "hooks-lab",
+      "description": "Interactive laboratory for learning Claude Code hooks through verbose logging and demonstrations of lifecycle events, context engineering, and hook patterns",
+      "version": "0.1.0",
+      "source": "./plugins/hooks-lab",
+      "author": {
+        "name": "Steve Leve",
+        "email": "steve.e.leve@gmail.com"
+      }
     }
   ]
 }

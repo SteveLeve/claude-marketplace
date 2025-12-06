@@ -1,0 +1,39 @@
+{
+  "hooks": [
+    {
+      "event": "SessionStart",
+      "name": "session-start-logger",
+      "description": "Logs session initialization and builds context bundles for learning and transparency",
+      "command": "${CLAUDE_PLUGIN_ROOT}/hooks/session-hooks/session-start.sh",
+      "enabled": true
+    },
+    {
+      "event": "SessionEnd",
+      "name": "session-end-logger",
+      "description": "Logs session summary, analyzes tool usage, and demonstrates session lifecycle",
+      "command": "${CLAUDE_PLUGIN_ROOT}/hooks/session-hooks/session-end.sh",
+      "enabled": true
+    },
+    {
+      "event": "PreToolUse",
+      "name": "pre-tool-transparency",
+      "description": "Intercepts tool calls before execution to demonstrate validation and transparency logging",
+      "command": "${CLAUDE_PLUGIN_ROOT}/hooks/tool-hooks/pre-tool-use.sh",
+      "enabled": true
+    },
+    {
+      "event": "PostToolUse",
+      "name": "post-tool-analysis",
+      "description": "Analyzes tool execution results and demonstrates post-execution patterns",
+      "command": "${CLAUDE_PLUGIN_ROOT}/hooks/tool-hooks/post-tool-use.sh",
+      "enabled": true
+    },
+    {
+      "event": "UserPromptSubmit",
+      "name": "prompt-analyzer",
+      "description": "Analyzes user prompts for intent and demonstrates context injection opportunities",
+      "command": "${CLAUDE_PLUGIN_ROOT}/hooks/prompt-hooks/user-prompt-submit.sh",
+      "enabled": true
+    }
+  ]
+}
