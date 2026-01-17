@@ -4,47 +4,46 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Repository Overview
 
-This is a **Claude Code Plugin Marketplace** - a repository for developing, testing, and managing Claude Code plugins. The repository follows the Claude Code plugin architecture with modular components.
+A **Claude Code Plugin Marketplace** for developing, testing, and managing plugins. Contains two plugin types: content-based plugins (skills, commands, agents) and behavior-based plugins (hooks).
 
 ## Repository Structure
 
 ```
 claude-marketplace/
-├── .claude-plugin/          # Marketplace metadata
-│   └── marketplace.json     # Plugin registry/marketplace config
-└── plugins/                 # Individual plugin projects
-    └── cloudflare-expert/   # Cloudflare Developer Platform plugin
-        ├── .claude-plugin/
-        │   └── plugin.json  # Plugin manifest
-        ├── skills/          # Auto-activating expertise modules
-        ├── commands/        # Slash commands
-        ├── agents/          # Autonomous specialist agents
-        └── .mcp.json        # MCP server configuration
+├── .claude-plugin/marketplace.json    # Plugin registry
+└── plugins/
+    ├── cloudflare-expert/             # Content-based plugin example
+    │   ├── .claude-plugin/plugin.json
+    │   ├── skills/                    # Auto-activating expertise
+    │   ├── commands/                  # Slash commands
+    │   ├── agents/                    # Autonomous specialists
+    │   └── .mcp.json                  # MCP server config
+    └── hooks-lab/                     # Behavior-based plugin example
+        ├── .claude-plugin/plugin.json
+        └── hooks/
+            ├── hooks.json             # Hook configuration
+            ├── session-hooks/         # SessionStart, SessionEnd
+            ├── tool-hooks/            # PreToolUse, PostToolUse
+            ├── prompt-hooks/          # UserPromptSubmit
+            └── lib/                   # Shared utilities
 ```
 
-## Plugin Architecture Components
+## Plugin Component Types
 
-### Skills (Auto-Activating Expertise)
-Skills are expertise modules that activate automatically based on conversation context. Located in `plugins/{name}/skills/`.
+### Skills
+Auto-activating expertise modules in `plugins/{name}/skills/{skill-name}/SKILL.md`.
 
-**Structure**:
-- `SKILL.md` - Main skill content with YAML frontmatter
-- `references/` - Detailed reference documentation
-- `examples/` - Working code examples
-
-**Frontmatter**:
 ```yaml
 ---
 name: Skill Name
-description: When this skill should activate (trigger keywords)
+description: Trigger keywords that activate this skill
 version: 0.1.0
 ---
 ```
 
-### Commands (Slash Commands)
-Interactive workflow commands that users invoke with `/plugin-name:command`. Located in `plugins/{name}/commands/`.
+### Commands
+Slash commands in `plugins/{name}/commands/{command-name}.md`.
 
-**Structure**: Markdown files with YAML frontmatter
 ```yaml
 ---
 name: command-name
@@ -54,22 +53,110 @@ allowed-tools: ["Read", "Bash", "Write"]
 ---
 ```
 
-### Agents (Autonomous Specialists)
-Self-contained agents that work autonomously on specific tasks. Located in `plugins/{name}/agents/`.
+### Agents
+Autonomous specialists in `plugins/{name}/agents/{agent-name}.md`.
 
-**Frontmatter**:
 ```yaml
 ---
-description: When to invoke this agent (trigger conditions)
+description: When to invoke this agent
 model: sonnet|opus|haiku
 color: blue|green|purple
 allowed-tools: ["Read", "WebFetch", "Grep"]
 ---
 ```
 
-### MCP Integration
-Plugins can integrate MCP servers via `.mcp.json` for external tools and resources.
+### Hooks
+Shell scripts triggered by lifecycle events. Configured in `hooks/hooks.json`:
 
+```json
+{
+  "hooks": [
+    {
+      "event": "PreToolUse",
+      "name": "my-hook",
+      "command": "${CLAUDE_PLUGIN_ROOT}/hooks/my-hook.sh",
+      "enabled": true
+    }
+  ]
+}
+```
+
+**Hook Events:**
+- `SessionStart` / `SessionEnd` - Session lifecycle
+- `PreToolUse` / `PostToolUse` - Tool execution (can block with exit code 1)
+- `UserPromptSubmit` - Prompt interception
+
+**Hook scripts receive context via stdin as JSON and can:**
+- Log information (to stderr for visibility)
+- Block operations (exit 1 in PreToolUse)
+- Write files for analysis/debugging
+
+## Development Workflow
+
+```bash
+# Test entire marketplace
+claude --plugin-dir .
+
+# Test specific plugin
+claude --plugin-dir plugins/cloudflare-expert
+claude --plugin-dir plugins/hooks-lab
+```
+
+No build step—changes take effect on new sessions.
+
+## Hooks Development
+
+### Testing Hooks Manually
+```bash
+cd plugins/hooks-lab
+echo '{"tool_name":"Bash","parameters":{"command":"ls"}}' | ./hooks/tool-hooks/pre-tool-use.sh
+```
+
+### Viewing Hook Logs
+```bash
+# Daily logs
+cat ~/.claude/hooks-lab/logs/$(date +%Y-%m-%d).log
+
+# Tool usage records
+cat ~/.claude/hooks-lab/tool-usage-detailed.jsonl
+
+# Session metadata
+cat ~/.claude/hooks-lab/sessions/*.json
+```
+
+### Hook Script Requirements
+- Must be executable (`chmod +x`)
+- Parse JSON from stdin using `jq` or bash
+- Log to stderr for console visibility
+- Exit 0 to allow, exit 1 to block (PreToolUse only)
+
+### Shared Hook Utilities
+`hooks/lib/logger.sh` provides color-coded logging functions:
+- `log_hook_event` - Hook lifecycle markers
+- `log_context` - Key-value context info
+- `log_success` / `log_error` - Status messages
+
+Source it in hooks: `source "${CLAUDE_PLUGIN_ROOT}/hooks/lib/logger.sh"`
+
+## File Naming Conventions
+
+| Component | Pattern | Example |
+|-----------|---------|---------|
+| Skills | `SKILL.md` (uppercase) | `skills/workers/SKILL.md` |
+| Commands | `{name}.md` (kebab-case) | `commands/deploy.md` |
+| Agents | `{name}.md` (kebab-case) | `agents/docs-specialist.md` |
+| Hooks | `{name}.sh` (kebab-case) | `hooks/pre-tool-use.sh` |
+
+## Architecture Patterns
+
+### Content Plugins (cloudflare-expert style)
+Use progressive disclosure: SKILL.md → references/ → examples/. Keep main files concise; defer details to subdirectories.
+
+### Behavior Plugins (hooks-lab style)
+Organize by hook event type. Share utilities in `hooks/lib/`. Log verbosely during development; reduce in production.
+
+### MCP Integration
+Add to `.mcp.json` for external tools:
 ```json
 {
   "mcpServers": {
@@ -80,156 +167,17 @@ Plugins can integrate MCP servers via `.mcp.json` for external tools and resourc
 }
 ```
 
-## Development Workflow
+## Plugin Registry
 
-### Testing a Plugin Locally
-```bash
-# Test plugin in current directory
-cc --plugin-dir /path/to/plugin-directory
-
-# Test plugin from marketplace
-cd /path/to/claude-marketplace
-cc --plugin-dir plugins/cloudflare-expert
-```
-
-### Plugin Development Commands
-
-**No build/compile step** - Plugins are markdown-based and load directly. Changes to plugin files are reflected when starting a new Claude Code session.
-
-**Testing workflow**:
-1. Edit plugin files (skills, commands, agents)
-2. Start new `cc` session with `--plugin-dir`
-3. Test functionality
-4. Iterate
-
-### File Organization Best Practices
-
-**Skills**:
-- Keep main SKILL.md focused and concise
-- Move detailed documentation to `references/`
-- Place working examples in `examples/`
-- Use progressive disclosure (overview → detailed docs → examples)
-
-**Commands**:
-- Include clear step-by-step workflow
-- Document expected arguments
-- Specify allowed tools explicitly
-- Provide troubleshooting guidance
-
-**Agents**:
-- Define clear trigger conditions in description
-- Specify minimal necessary tools
-- Choose appropriate model (haiku for simple tasks, sonnet for complex)
-- Make agents fully autonomous
-
-## Key Development Patterns
-
-### Plugin Manifest (plugin.json)
-Every plugin requires `.claude-plugin/plugin.json`:
-
+Register plugins in `.claude-plugin/marketplace.json`:
 ```json
 {
-  "name": "plugin-name",
-  "version": "0.1.0",
-  "description": "Plugin description",
-  "author": {
-    "name": "Author Name",
-    "email": "email@example.com"
-  },
-  "keywords": ["keyword1", "keyword2"],
-  "license": "MIT"
+  "plugins": [
+    {
+      "name": "plugin-name",
+      "version": "0.1.0",
+      "source": "./plugins/plugin-name"
+    }
+  ]
 }
 ```
-
-### Skill Progressive Disclosure
-Structure skills with layered information:
-1. **Main SKILL.md**: Overview, common patterns, quick reference
-2. **references/**: Deep-dive documentation
-3. **examples/**: Working code samples
-
-### Command Workflow Pattern
-Commands should follow a validation → execution → monitoring pattern:
-1. Validate configuration/environment
-2. Offer fixes for issues
-3. Execute command with appropriate flags
-4. Monitor output and assist with errors
-
-### Agent Autonomy
-Agents should be self-contained:
-- Clear trigger conditions
-- Specific tool allowlist
-- Complete instructions for autonomous operation
-- Return synthesis, not raw data
-
-## Important Constraints
-
-### What NOT to Include
-- Build/compile commands (plugins are markdown-based)
-- Package.json or npm dependencies (plugins don't have Node dependencies)
-- Testing frameworks (testing is manual via `cc` sessions)
-- Deployment pipelines (plugins are distributed as directories)
-
-### File Naming Conventions
-- Skills: `SKILL.md` (uppercase)
-- Commands: `{command-name}.md` (kebab-case)
-- Agents: `{agent-name}.md` (kebab-case)
-- Plugin manifest: `plugin.json` (always in `.claude-plugin/`)
-
-### YAML Frontmatter Requirements
-- Always include `---` delimiters
-- Required fields vary by component type
-- Use consistent indentation (2 spaces)
-- Quote strings with special characters
-
-## Common Development Tasks
-
-### Adding a New Skill
-1. Create `plugins/{plugin}/skills/{skill-name}/SKILL.md`
-2. Add YAML frontmatter with name, description, version
-3. Write skill content with overview and patterns
-4. Create `references/` directory for detailed docs
-5. Add `examples/` directory for code samples
-
-### Adding a New Command
-1. Create `plugins/{plugin}/commands/{command-name}.md`
-2. Add YAML frontmatter with name, description, arguments, tools
-3. Document step-by-step workflow
-4. Include common issues and solutions
-5. Provide usage examples
-
-### Adding a New Agent
-1. Create `plugins/{plugin}/agents/{agent-name}.md`
-2. Add YAML frontmatter with description, model, color, tools
-3. Define agent capabilities and process
-4. Make instructions autonomous and complete
-5. Specify when agent should return to user
-
-### Integrating an MCP Server
-1. Create or edit `plugins/{plugin}/.mcp.json`
-2. Add server configuration with URL
-3. Reference MCP tools in agent/command `allowed-tools`
-4. Document MCP tools in relevant skills
-5. Update plugin README with MCP integration details
-
-## Repository-Specific Notes
-
-### Cloudflare Expert Plugin
-The `cloudflare-expert` plugin is a comprehensive example demonstrating:
-- Multiple coordinated skills (workers, wrangler, platform, AI)
-- Interactive commands (dev, deploy)
-- Specialized agents (docs, workers, AI specialists)
-- MCP integration (Cloudflare documentation)
-- Living memory system (`.claude/cloudflare-expert.local.md`)
-
-This serves as a reference implementation for well-structured plugins.
-
-## Documentation Philosophy
-
-Claude Code plugins emphasize **progressive disclosure**:
-- Skills provide quick reference for common tasks
-- References contain deep technical documentation
-- Examples show working implementations
-- Commands guide through workflows step-by-step
-- Agents operate autonomously with complete context
-
-Keep main files focused; defer details to reference files.

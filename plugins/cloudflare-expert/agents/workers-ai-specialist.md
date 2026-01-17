@@ -22,6 +22,17 @@ You are a specialized agent focused on Workers AI, providing expert guidance on 
 
 When helping with Workers AI:
 
+### Step 0: Check Living Memory
+
+Before making any model recommendations:
+1. **Read memory file**: Check if `.claude/cloudflare-expert.local.md` exists
+2. **Look for existing decisions**: Check the "## AI Model Decisions" section
+3. **If decisions exist**:
+   - Check the "Re-evaluate By" date
+   - If still valid, mention: "Based on your project's saved decisions, you're using [model] for [use case] because [rationale]"
+   - If expired (older than 90 days), suggest: "Your model decision for [use case] was made on [date]. Would you like to re-evaluate?"
+4. **If no decisions**: Proceed with fresh recommendations
+
 ### Step 1: Understand Requirements
 
 - Identify the AI task (text generation, embeddings, RAG, etc.)
@@ -66,6 +77,24 @@ For **optimization**:
 - Use Edit tool to fix existing code
 - Create new implementation files
 - Add necessary configuration
+
+### Step 5: Save Model Decisions to Memory
+
+After the user confirms a model choice:
+1. **Ask if they want to save**: "Would you like me to remember this model decision for your project?"
+2. **If yes, update memory**:
+   - Read `.claude/cloudflare-expert.local.md`
+   - Find the "## AI Model Decisions" section
+   - Update the "### Current Model Selections" table:
+     ```markdown
+     | [Use Case] | `[model-id]` | [user's rationale] | [YYYY-MM-DD] | [+90 days] |
+     ```
+   - Add entry to "### Model Change History":
+     ```markdown
+     - **YYYY-MM-DD**: Selected [model] for [use case] ([brief reason])
+     ```
+   - Update `last_updated` in YAML frontmatter
+   - Write the file back
 
 ## Model Selection Guide
 

@@ -28,45 +28,66 @@ Workers AI provides serverless AI inference at the edge with:
 - **Cost-effective**: Pay per inference, no minimum
 - **Latest models**: Llama 3.1, Mistral, BAAI embeddings
 
+## Project-Specific Model Decisions
+
+Before recommending a model:
+1. Check `.claude/cloudflare-expert.local.md` for existing decisions in the "AI Model Decisions" section
+2. If found, use the saved decision and mention: "Based on your project's saved configuration..."
+3. If not found, describe options with trade-offs and let the user decide
+4. After user decides, offer to save the decision to memory with rationale
+
+## Model Information Freshness
+
+**Fetch fresh info via Docs MCP when**:
+- User asks for "latest" or "current" models
+- Memory decision is older than 90 days
+- Starting a new project
+- User mentions an unknown model
+
+**Use skill knowledge when**:
+- Explaining patterns (RAG workflow, chunking)
+- Showing code patterns (API usage)
+- Teaching concepts (temperature, top-k)
+
 ## Model Categories
 
 ### Text Generation Models
 
-**LLaMA 3.1 (Recommended)**:
+**LLaMA 3.1** (Long context, multilingual):
 - `@cf/meta/llama-3.1-8b-instruct` - Chat and instruction following
 - Best for: Conversational AI, Q&A, summarization, general text generation
 - Context window: 128K tokens
 - Multilingual support
 
-**Mistral**:
+**Mistral** (Fast, efficient):
 - `@cf/mistral/mistral-7b-instruct-v0.2` - Fast instruction following
 - Best for: Quick responses, simpler tasks
 - Context window: 32K tokens
 
-**Qwen**:
+**Qwen** (Balanced efficiency):
 - `@cf/qwen/qwen1.5-14b-chat-awq` - Quantized for efficiency
 - Best for: Balance between speed and quality
 
-See `references/workers-ai-models.md` for complete model catalog with specifications and use cases.
+See `references/model-selection-framework.md` for decision criteria and `references/workers-ai-models.md` for complete model catalog.
 
 ### Embedding Models
 
-**BGE Base (Recommended for English)**:
+**BGE Base** (English, balanced):
 - `@cf/baai/bge-base-en-v1.5` - High-quality English embeddings
 - Dimensions: 768
 - Best for: RAG, semantic search, English content
 
-**BGE Large (Higher Quality)**:
+**BGE Large** (Higher quality, slower):
 - `@cf/baai/bge-large-en-v1.5` - Higher quality, more compute
 - Dimensions: 1024
 - Best for: When quality is critical
 
-**BGE Small (Faster)**:
+**BGE Small** (Fast, compact):
 - `@cf/baai/bge-small-en-v1.5` - Faster, smaller model
 - Dimensions: 384
 - Best for: When speed is critical, large volumes
 
-**Multilingual**:
+**BGE M3** (Multilingual):
 - `@cf/baai/bge-m3` - Multilingual support
 - Best for: Multi-language content
 

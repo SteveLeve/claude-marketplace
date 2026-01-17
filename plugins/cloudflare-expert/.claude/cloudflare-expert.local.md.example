@@ -1,6 +1,7 @@
 ---
 last_updated: 2025-01-15T10:00:00Z
 project_name: my-cloudflare-project
+cloudflare_account_id: ""  # Set your account ID for MCP queries
 ---
 
 # Cloudflare Expert - Living Memory
@@ -8,6 +9,53 @@ project_name: my-cloudflare-project
 This file stores frequently accessed information, project-specific notes, and common patterns for your Cloudflare project. The cloudflare-expert plugin uses this file to provide faster, more relevant assistance.
 
 **Note**: This is a `.local.md` file and should be gitignored. Copy this example to `.claude/cloudflare-expert.local.md` and customize for your project.
+
+## Bindings Registry
+
+Track your project's Cloudflare bindings with their IDs, purposes, and status. Agents update this section when creating or discovering bindings.
+
+### D1 Databases
+| Binding Name | Database ID | Purpose | Environment | Last Verified |
+|--------------|-------------|---------|-------------|---------------|
+| `DATABASE` | `abc123...` | Main application data | production | 2025-01-15 |
+| `DATABASE` | `def456...` | Main application data | staging | 2025-01-15 |
+
+### KV Namespaces
+| Binding Name | Namespace ID | Purpose | Environment | Last Verified |
+|--------------|--------------|---------|-------------|---------------|
+| `CACHE` | `xyz789...` | API response caching | production | 2025-01-15 |
+
+### R2 Buckets
+| Binding Name | Bucket Name | Purpose | Environment | Last Verified |
+|--------------|-------------|---------|-------------|---------------|
+| `UPLOADS` | `user-uploads` | User file storage | production | 2025-01-15 |
+
+### Vectorize Indexes
+| Binding Name | Index Name | Dimensions | Model Used | Purpose |
+|--------------|------------|------------|------------|---------|
+| `VECTOR_INDEX` | `embeddings` | 768 | `@cf/baai/bge-base-en-v1.5` | RAG search |
+
+## AI Model Decisions
+
+Track project-specific AI model choices with rationale. Check this before recommending models.
+
+### Current Model Selections
+| Use Case | Model | Rationale | Decided | Re-evaluate By |
+|----------|-------|-----------|---------|----------------|
+| Text Generation | `@cf/meta/llama-3.1-8b-instruct` | Good balance of quality and context length for Q&A | 2025-01-15 | 2025-04-15 |
+| Embeddings | `@cf/baai/bge-base-en-v1.5` | English-only content, 768 dims matches Vectorize | 2025-01-15 | - |
+
+### Model Change History
+- **2025-01-15**: Selected Llama 3.1 8B for text generation (128K context needed)
+- **2025-01-10**: Chose bge-base-en-v1.5 for embeddings (English-only project)
+
+## Obsolete Items
+
+Items marked for forgetting or removal. Clean up periodically.
+
+| Item Type | Description | Marked Date | Reason |
+|-----------|-------------|-------------|--------|
+| KV Binding | `OLD_CACHE` | 2025-01-15 | Migrated to new namespace |
 
 ## Frequently Accessed Topics
 
