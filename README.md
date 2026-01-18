@@ -20,16 +20,16 @@ claude-marketplace/
 
 ## Plugins
 
-### cloudflare-expert (v0.1.0)
+### cloudflare-expert (v0.1.3)
 
-Comprehensive guidance for building on the Cloudflare Developer Platform.
+Cloudflare Developer Platform Expert - Comprehensive guidance for building on Cloudflare Workers, platform products, and Workers AI.
 
 **Features:**
-- 5 auto-activating skills (Workers, Wrangler, Platform, AI, Deployment)
-- 2 workflow commands (/cloudflare:dev, /cloudflare:deploy)
-- 3 specialized agents (docs, workers, AI specialists)
-- MCP integration with Cloudflare documentation
-- Living memory system
+- 7 auto-activating skills (Workers development, Wrangler workflows, Platform products, Workers AI, Deployment strategies, Workflows patterns, Frameworks integration)
+- 3 workflow commands (/cloudflare:dev, /cloudflare:deploy, /cloudflare:debug)
+- 4 specialized agents (docs specialist, workers specialist, AI specialist, observability specialist)
+- MCP integration with Cloudflare documentation and observability APIs
+- Living memory system for project-specific knowledge
 
 **Installation:**
 ```bash
