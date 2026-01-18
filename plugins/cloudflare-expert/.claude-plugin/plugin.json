@@ -1,6 +1,6 @@
 {
   "name": "cloudflare-expert",
-  "version": "0.1.0",
+  "version": "0.1.3",
   "description": "Cloudflare Developer Platform Expert - Comprehensive guidance for building on Cloudflare Workers, platform products, and Workers AI",
   "author": {
     "name": "Steve Leve",

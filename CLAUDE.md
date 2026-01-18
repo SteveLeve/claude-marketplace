@@ -104,6 +104,13 @@ claude --plugin-dir plugins/hooks-lab
 
 No build step—changes take effect on new sessions.
 
+### ⚠️ Important: Version Management
+**When making changes to any plugin, update the version number in:**
+- `plugins/{name}/.claude-plugin/plugin.json` - Plugin version
+- `.claude-plugin/marketplace.json` - Corresponding entry in registry
+
+Follow semantic versioning (e.g., 0.1.0 → 0.1.1 for patch, 0.2.0 for minor). This ensures changes are properly tracked and new sessions pick up the latest plugin code.
+
 ## Hooks Development
 
 ### Testing Hooks Manually
